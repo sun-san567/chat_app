@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>乱数生成を関数化</title>
+</head>
+
+<body>
+  <h1>function03: 乱数生成を関数化</h1>
+  <button id="btn01">1-10</button>
+  <button id="btn02">10-20</button>
+  <button id="btn03">20-100</button>
+  <h1 id="echo"></h1>
+  <h1 id="sum"></h1>
+
+  <script>
+    const btn1 = document.getElementById('btn01');
+    const btn2 = document.getElementById('btn02');
+    const btn3 = document.getElementById('btn03');
+    const textArea = document.getElementById('echo');
+    const sumNumber = document.getElementById('sum');
+
+    let random = null;
+    let array = [];
+    let sumResult = 0;
+
+    function getRandomMath(min, max) {
+      random = Math.floor(Math.random() * (max - min + 1) + min);
+      return random;
+    }
+
+    function arrayPush(randomNum) {
+      if (randomNum) {
+        array.push(randomNum)
+      }
+    }
+
+    // 合計値を計算して表示する関数
+    function sumEvent() {
+      let sum = 0;
+      // 配列の要素を合計
+      for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+      }
+      // sumNumberを使用して結果を表示
+      sumNumber.textContent = sum;  // 修正点：既に取得した要素を使用
+    }
+
+    btn1.addEventListener('click', function () {
+      console.log(getRandomMath(10, 1))
+      const randomNum = getRandomMath(10, 1)
+      textArea.innerHTML = randomNum;
+      arrayPush(randomNum)
+      console.log(array)
+      sumEvent();  // 合計を更新
+    });
+
+    btn2.addEventListener('click', function () {
+      console.log(getRandomMath(20, 10))
+      const randomNum = getRandomMath(20, 10)
+      textArea.innerHTML = randomNum;
+      arrayPush(randomNum)
+      console.log(array)
+      sumEvent();  // 合計を更新
+    });
+
+    btn3.addEventListener('click', function () {
+      console.log(getRandomMath(10, 1))
+      const randomNum = getRandomMath(100, 20)
+      textArea.innerHTML = randomNum;
+      arrayPush(randomNum)
+      console.log(array)
+      sumEvent();  // 合計を更新
+    });
+
+  </script>
+
+</body>
+
+</html>

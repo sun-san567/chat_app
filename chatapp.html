@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>chatApp</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+  </style>
+</head>
+
+<body>
+  <h1>realtime chat</h1>
+  <!-- 入力場所を作成しよう -->
+  <form>
+    <fieldset>
+      <legend>チャット入力画面</legend>
+      <div>name: <input type="text" id="name" /></div>
+      <div>text: <input type="text" id="text" /></div>
+      <div>
+        <button type="button" id="send">send</button>
+      </div>
+    </fieldset>
+  </form>
+
+  <!-- データ出力場所 -->
+  <ul id="output"></ul>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    // 日時をいい感じの形式にする関数
+    function convertTimestampToDatetime(timestamp) {
+      const _d = timestamp ? new Date(timestamp * 1000) : new Date();
+      const Y = _d.getFullYear();
+      const m = (_d.getMonth() + 1).toString().padStart(2, '0');
+      const d = _d.getDate().toString().padStart(2, '0');
+      const H = _d.getHours().toString().padStart(2, '0');
+      const i = _d.getMinutes().toString().padStart(2, '0');
+      const s = _d.getSeconds().toString().padStart(2, '0');
+      return `${Y}/${m}/${d} ${H}:${i}:${s}`;
+    }
+
+  </script>
+  <!-- 以下にfirebaseのコードを貼り付けよう -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // 🔽 追加 / `9.2.0`の部分を↑のFirestoreから貼り付けたコードのバージョンに合わせる
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp,
+      onSnapshot,
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDecDSOEBGxvXyfPkKh4GucNA58GmtMHlA",
+      authDomain: "chat-app-test-c055c.firebaseapp.com",
+      projectId: "chat-app-test-c055c",
+      storageBucket: "chat-app-test-c055c.firebasestorage.app",
+      messagingSenderId: "34157641674",
+      appId: "1:34157641674:web:1213420d20a729cd1ad933"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    $("#send").on("click", function () {
+      const postData = {
+        name: $("#name").val(),
+        text: $("#text").val(),
+        time: serverTimestamp(),
+      };
+      addDoc(collection(db, "chat"), postData);
+      $("#text").val("");
+    });
+
+    // よくわからないデータを入力してきれいなデータに変換して出力する関数
+    function chatDocuments(fireStoreDocs) {
+      const documents = [];
+      fireStoreDocs.forEach(function (doc) {
+        const document = {
+          id: doc.id,
+          data: doc.data(),
+        };
+        documents.push(document);
+      });
+      return documents;
+    }
+
+    // 「配列形式にしたチャットのデータ」を入力して「表示用のタグにいれて」出力する関数を追加する
+    function chatElements(chatDocuments) {
+      const elements = [];
+      chatDocuments.forEach(function (document) {
+        elements.push(`
+            <li id="${document.id}">
+              <p>${document.data.name} at ${document.data.time}</p>
+              <p>${document.data.text}</p>
+            </li>
+          `);
+      });
+      return elements;
+    }
+
+
+    onSnapshot(collection(db, "chat"), (querySnapshot) => {
+      console.log(querySnapshot.docs);
+      const documents = chatDocuments(querySnapshot.docs);
+      console.log(documents);
+      // 配列形式のデータを入力して表示用のタグにいれて出力する
+      const elements = chatElements(documents);
+      $("#output").html(elements);
+    });
+
+  </script>
+
+</body>
+
+</html>
